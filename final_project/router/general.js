@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
@@ -33,15 +34,20 @@ public_users.get('/',function (req, res) {
   });
 });
 
+// Use axios to fetch book details from API
 function getBookByISBN(isbn) {
-  return new Promise((resolve, reject) => {
-    const book = books[isbn];
-    if (book) {
-      resolve(book);
-    } else {
-      reject("Book not found");
-    }
-  });
+  return axios.get(`http://localhost:5000/`)
+    .then(response => {
+      const book = response.data[isbn];
+      if (book) {
+        return book;
+      } else {
+        throw new Error("Book not found");
+      }
+    })
+    .catch(error => {
+      throw new Error("Error retrieving book details");
+    });
 }
 
 // Get book details based on ISBN
